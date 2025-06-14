@@ -14,9 +14,16 @@ sys.path.append("yolov5")  # Đảm bảo YOLOv5 trong sys.path
 # Load mô hình
 @st.cache_resource
 def load_model():
-    model = torch.hub.load('yolov5', 'custom', path='best.pt', source='local')
-    return model
+    model_path = os.path.join(os.path.dirname(__file__), "best.pt")
 
+    # Load YOLOv5 model từ thư mục đã clone
+    model = torch.hub.load(
+        repo_or_dir='yolov5',       # thư mục thực YOLOv5 đã clone
+        model='custom',
+        path=model_path,
+        source='local'              # dùng local repo, không tải từ internet
+    )
+    return model
 model = load_model()
 
 # Giao diện
@@ -36,11 +43,19 @@ if uploaded_file is not None:
         results.save(save_dir="output")
 
     # Hiển thị ảnh kết quả
+    
+    import os
+    from PIL import Image
+
+    # Đường dẫn đến thư mục cha chứa các thư mục output
     parent_dir = "./"
+
+    # Tìm thư mục mới nhất (giả sử các thư mục này được tạo theo thứ tự tăng dần)
     output_dirs = [d for d in os.listdir(parent_dir) if os.path.isdir(os.path.join(parent_dir, d)) and d.startswith("output")]
     output_dirs.sort(key=lambda x: int(x.replace("output", "") if x != "output" else 0))
     latest_dir = os.path.join(parent_dir, output_dirs[-1])
 
+    # Tìm ảnh .jpg trong thư mục đó
     for filename in os.listdir(latest_dir):
         if filename.endswith('.jpg'):
             image_path = os.path.join(latest_dir, filename)
