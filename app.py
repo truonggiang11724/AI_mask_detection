@@ -2,14 +2,14 @@ import streamlit as st
 from PIL import Image
 import torch
 import os
-
-import sys
 import subprocess
+import sys
 
+# --- Clone YOLOv5 nếu chưa có thư mục ---
 if not os.path.exists("yolov5"):
-    subprocess.run(["git", "clone", "https://github.com/ultralytics/yolov5.git"])
-sys.path.append("yolov5")
-from detect import run as detect_run
+    with st.spinner("Đang tải YOLOv5 lần đầu..."):
+        subprocess.run(["git", "clone", "https://github.com/ultralytics/yolov5.git"])
+sys.path.append("yolov5")  # Đảm bảo YOLOv5 trong sys.path
 
 # Load mô hình
 @st.cache_resource
@@ -36,19 +36,11 @@ if uploaded_file is not None:
         results.save(save_dir="output")
 
     # Hiển thị ảnh kết quả
-    
-    import os
-    from PIL import Image
-
-    # Đường dẫn đến thư mục cha chứa các thư mục output
     parent_dir = "./"
-
-    # Tìm thư mục mới nhất (giả sử các thư mục này được tạo theo thứ tự tăng dần)
     output_dirs = [d for d in os.listdir(parent_dir) if os.path.isdir(os.path.join(parent_dir, d)) and d.startswith("output")]
     output_dirs.sort(key=lambda x: int(x.replace("output", "") if x != "output" else 0))
     latest_dir = os.path.join(parent_dir, output_dirs[-1])
 
-    # Tìm ảnh .jpg trong thư mục đó
     for filename in os.listdir(latest_dir):
         if filename.endswith('.jpg'):
             image_path = os.path.join(latest_dir, filename)
