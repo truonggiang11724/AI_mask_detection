@@ -3,6 +3,14 @@ from PIL import Image
 import torch
 import os
 
+import sys
+import subprocess
+
+if not os.path.exists("yolov5"):
+    subprocess.run(["git", "clone", "https://github.com/ultralytics/yolov5.git"])
+sys.path.append("yolov5")
+from detect import run as detect_run
+
 # Load mô hình
 @st.cache_resource
 def load_model():
